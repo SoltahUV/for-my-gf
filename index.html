@@ -4,19 +4,57 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Тебе тут кое-что есть</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="garden" id="garden"></div>
 <main class="wrap intro">
-  <h1>С днём рождения, ИМЯ!</h1>
+  <h1 data-type>С днём рождения, ИМЯ!</h1>
   <div class="lines">
-    <p>Тут немного текста, немного игр и один подарок.</p>
-    <p>Спешить некуда. Можно закрыть и вернуться, всё сохранится.</p>
-    <p>Проиграть тут нельзя, я проверял.</p>
+    <p data-type>Тут немного текста, игр и один подарок.</p>
+    <p data-type>Спешить некуда, всё сохранится.</p>
+    <p data-type>Проиграть тут нельзя, я проверял.</p>
   </div>
   <a class="btn" href="hub.html" id="go">Поехали</a>
 </main>
 <script src="app.js"></script>
-<script>document.getElementById('go').addEventListener('click',()=>BD.set('intro'));</script>
+<script>
+BD.garden(document.getElementById('garden'), 9);
+document.getElementById('go').addEventListener('click', () => BD.set('intro'));
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const els = [...document.querySelectorAll('[data-type]')];
+const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+let skip = reduce;
+addEventListener('pointerdown', () => { skip = true; }); // тап по экрану дописывает всё сразу
+const caret = Object.assign(document.createElement('span'), { className: 'caret' });
+
+// Весь текст сразу лежит в разметке (скрытый), поэтому строки не прыгают при печати
+const parts = els.map(el => {
+  const text = el.textContent;
+  el.setAttribute('aria-label', text);
+  el.innerHTML = '<span class="t" aria-hidden="true"></span><span class="r" aria-hidden="true"></span>';
+  el.lastChild.textContent = text;
+  return { el, text, t: el.firstChild, r: el.lastChild };
+});
+
+(async () => {
+  try { await Promise.race([document.fonts.load('1em Pacifico', 'Привет'), sleep(1500)]); } catch (e) {}
+  for (const { el, text, t, r } of parts) {
+    el.insertBefore(caret, r);
+    for (let i = 1; i <= text.length && !skip; i++) {
+      t.textContent = text.slice(0, i); r.textContent = text.slice(i);
+      await sleep(55 + Math.random() * 45);
+    }
+    t.textContent = text; r.textContent = '';
+    if (!skip) await sleep(450);
+  }
+  caret.remove();
+  document.getElementById('go').classList.add('show');
+})();
+</script>
 </body>
 </html>

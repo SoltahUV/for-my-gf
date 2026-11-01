@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="garden" id="garden"></div>
 <main class="wrap">
   <div class="top"><h2>Что тут есть</h2><span class="count" id="count"></span></div>
   <div class="list" id="list"></div>
@@ -21,6 +22,7 @@ const ITEMS = [
   {id:'wish',    ico:'✍️', title:'Желание',           sub:'Что хочешь на следующий год',  href:'wish.html',    need:['card']},
   {id:'candles', ico:'🎂', title:'Свечи',             sub:'Последний шаг',                href:'candles.html', need:['snake','scratch','wish'], final:true}
 ];
+BD.garden(document.getElementById('garden'), 6);
 const p = BD.get();
 if (!p.intro && !BD.dev) location.replace('index.html');
 const list = document.getElementById('list');
