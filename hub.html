@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Что тут есть</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><h2>Что тут есть</h2><span class="count" id="count"></span></div>
+  <div class="list" id="list"></div>
+</main>
+<script src="app.js"></script>
+<script>
+// id совпадает с ключом прогресса. need: что должно быть пройдено до открытия.
+const ITEMS = [
+  {id:'card',    ico:'💌', title:'Открытка',          sub:'Прочитай и потыкай фотки',     href:'card.html',    need:[]},
+  {id:'snake',   ico:'🐍', title:'Змейка',            sub:'Собери части подарков',        href:'snake.html',   need:['card']},
+  {id:'scratch', ico:'🎟️', title:'Стирашка',          sub:'Найди слои и угадай подарки',  href:'scratch.html', need:['card']},
+  {id:'wish',    ico:'✍️', title:'Желание',           sub:'Что хочешь на следующий год',  href:'wish.html',    need:['card']},
+  {id:'candles', ico:'🎂', title:'Свечи',             sub:'Последний шаг',                href:'candles.html', need:['snake','scratch','wish'], final:true}
+];
+const p = BD.get();
+if (!p.intro && !BD.dev) location.replace('index.html');
+const list = document.getElementById('list');
+ITEMS.forEach(it => {
+  if (it.final) list.insertAdjacentHTML('beforeend','<div class="sep"></div>');
+  const open = BD.dev || it.need.every(n => p[n]);
+  const done = !!p[it.id];
+  const a = document.createElement('a');
+  a.className = 'item ' + (done ? 'done' : open ? 'open' : 'locked') + (it.final ? ' final' : '');
+  if (open) a.href = it.href; else a.setAttribute('aria-disabled','true');
+  const hint = open ? it.sub : (it.final ? 'Откроется, когда пройдёшь всё' : 'Откроется после открытки');
+  a.innerHTML = `<span class="ico">${open ? it.ico : '🔒'}</span><span><b>${it.title}</b><small>${hint}</small></span>`;
+  list.appendChild(a);
+});
+const n = ['snake','scratch','wish'].filter(k => p[k]).length;
+document.getElementById('count').textContent = p.card ? n + ' из 3' : '';
+</script>
+</body>
+</html>
